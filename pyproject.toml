@@ -42,20 +42,20 @@ sphinx-click = { version = "^4" }
 
 [tool.poetry.group.dev.dependencies]
 # Testing
-pytest = "^7.1.1"
-pytest-cov = "^3.0.0"
-pytest-mock = "^3.7.0"
-pytest-sugar = "^0.9.4"
+pytest = "^8"
+pytest-cov = "^3"
+pytest-mock = "^3"
+pytest-sugar = "^0"
 # Décommenter pour avoir des tests parallèles
 # pytest-xdist = "^2.5.0"
 # Linting
 ## Type Checking and Data Validation
-mypy = "^0.942" # Static type checker
+mypy = "^1" # Static type checker
 ## Code formatting
-black = "^22.1.0" # see: https://black.readthedocs.io/en/stable/editor_integration.html
+black = "^24" # see: https://black.readthedocs.io/en/stable/editor_integration.html
 ## Code quality
 isort = "^5.10.1"
-pylint = "^2.13.0"
+pylint = "^2"
 ## Detect secrets
 detect-secrets = "^1.4.0"
 ## Security Issues
@@ -70,6 +70,8 @@ pyupgrade = "^3.3.1"
 yamllint = "1.29.0"
 ## various convenient hooks
 pre-commit-hooks = "^4.4.0"
+types-docutils = "^0.20.0.20240201"
+pylint-pytest = "^1.1.7"
 
 [tool.poetry.scripts]
 cli = "bin.cli:cli"

@@ -1,3 +1,5 @@
+"""Sphinx Pandera."""
+
 import inspect
 from typing import Any, Optional, Tuple
 
@@ -147,7 +149,7 @@ class PanderaField(PanderaDirectiveBase, PyAttribute):  # type: ignore
 
         """
 
-        return py_sig_re.match(sig).groups()[1]
+        return py_sig_re.match(sig).groups()[1]  # type: ignore[union-attr]
 
     def handle_signature(self, sig: str, signode: desc_signature) -> TupleStr:
         """add field title"""
@@ -257,6 +259,7 @@ class PanderaModelDocumenter(ClassDocumenter):
 #########
 
 
+# pylint: disable=abstract-method
 class PanderaFieldDocumenter(AttributeDocumenter):
     """Represents specialized Documenter subclass for pandera fields."""
 
