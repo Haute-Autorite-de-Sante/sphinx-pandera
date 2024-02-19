@@ -1,0 +1,32 @@
+{
+  "template": "https://gitlab.has-sante.fr/has-sante/public/cookiecutter-prod-python-has/",
+  "commit": "a50da3a65115a8cf5be5a6eec1d683c446919d95",
+  "checkout": null,
+  "context": {
+    "cookiecutter": {
+      "project_name": "Sphinx extension for Pandera models",
+      "project_slug": "sphinx-pandera",
+      "package_name": "sphinx_pandera",
+      "friendly_name": "Sphinx Pandera",
+      "author": "Timothée Chehab",
+      "email": "t.chehab@has-sante.fr",
+      "project_type": "package",
+      "docker_enabled": "no",
+      "docs_enabled": "yes",
+      "jupyter_notebooks_enabled": "no",
+      "linting_enabled": "yes",
+      "tests_enabled": "yes",
+      "remote_vcs_url": "https://gitlab.has-sante.fr",
+      "remote_vcs_project_path": "has-sante/public/alpha/sphinx-pandera",
+      "project_repository_url": "https://gitlab.has-sante.fr/has-sante/public/alpha/sphinx-pandera",
+      "documentation_url": "https://has-sante.pages.has-sante.fr/public/alpha/sphinx-pandera",
+      "used_language": "english",
+      "version": "0.0.0",
+      "_copy_without_render": [
+        "docs/source/_templates/*"
+      ],
+      "_template": "https://gitlab.has-sante.fr/has-sante/public/cookiecutter-prod-python-has/"
+    }
+  },
+  "directory": null
+}

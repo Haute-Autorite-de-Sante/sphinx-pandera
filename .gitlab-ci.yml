@@ -1,0 +1,36 @@
+---
+
+image: python:3.11-bookworm
+
+stages:
+  - test
+  - docs
+tests:
+  stage: test
+  tags:
+    - has-scaleway
+    - podman
+    - prod
+    - general
+  script:
+    - pip install -U poetry
+    - make provision-environment
+    - make lint
+    - make coverage
+pages:
+  stage: docs
+  tags:
+    - has-scaleway
+    - podman
+    - prod
+    - general
+  script:
+    - pip install -U poetry
+    - make provision-environment
+    - make docs-html
+    - mv docs/_build/html/ public/
+  artifacts:
+    paths:
+      - public
+  only:
+    - main
