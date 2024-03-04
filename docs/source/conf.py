@@ -1,4 +1,5 @@
 """Sphinx configuration."""
+
 import pathlib
 import sys
 from datetime import datetime
