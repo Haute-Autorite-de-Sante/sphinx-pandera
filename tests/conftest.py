@@ -93,7 +93,6 @@ def test_app(make_app, sphinx_test_tempdir, rootdir):
         testroot: str,
         conf: Optional[Dict] = None,
     ):
-
         srcdir = sphinx_test_tempdir / testroot
         shutil.rmtree(srcdir, ignore_errors=True)
 
@@ -131,9 +130,6 @@ def autodocument(test_app):
         Name of the sphinx test source directory which are located under
         `autodoc_pydantic/tests/roots/`. By default, it uses the `base`
         directory.
-    deactivate_all: bool, optional
-        If True, completely deactivates all autodoc_pydantic modifications.
-        This is useful when testing individual modifications in isolation.
 
     """
 
@@ -144,11 +140,8 @@ def autodocument(test_app):
         options_doc: Optional[Dict] = None,
         options_app: Optional[Dict] = None,
         testroot: str = "base",
-        deactivate_all: bool = False,
     ):
-        app = test_app(
-            testroot, conf=options_app, deactivate_all=deactivate_all
-        )
+        app = test_app(testroot, conf=options_app)
 
         return do_autodoc(
             app=app,

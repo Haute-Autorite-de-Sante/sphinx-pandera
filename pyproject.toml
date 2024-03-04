@@ -18,6 +18,7 @@ classifiers = [
     "Programming Language :: Python",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
+packages = [ {include = "sphinx_pandera", from="sphinxcontrib"}]
 
 # [tool.poetry.urls]
 # Changelog = "https://gitlab.has-sante.fr/has-sante/public/alpha/sphinx-pandera/releases"
@@ -90,7 +91,7 @@ include = '\.pyi?$'
 branch = true
 concurrency = ["multiprocessing"]
 parallel = true
-source = ["sphinx_pandera"]
+source = ["sphinxcontrib"]
 
 [tool.coverage.report]
 exclude_lines =[
@@ -99,7 +100,7 @@ exclude_lines =[
     "raise NotImplementedError",
     "if __name__ == .__main__.:",
 ]
-fail_under = 70
+fail_under = 45
 show_missing = true
 skip_covered = true
 

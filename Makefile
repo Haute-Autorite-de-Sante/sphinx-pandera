@@ -145,7 +145,7 @@ test: clean
 .PHONY: coverage
 ## Test via tox in poetry env
 coverage: clean
-	poetry run pytest --cov=sphinx_pandera tests/
+	poetry run pytest --cov=sphinxcontrib tests/
 
 
 .PHONY: lint
