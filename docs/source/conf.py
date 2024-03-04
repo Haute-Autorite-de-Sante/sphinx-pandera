@@ -18,6 +18,9 @@ load_dotenv()
 # add these directories to sys.path here. Note that we are adding an absolute
 # path.
 _project_directory = pathlib.Path(__file__).parent.parent.parent
+path_examples = _project_directory / "tests" / "test-docs" / "test-basic"
+
+sys.path.insert(0, str(path_examples))
 sys.path.insert(0, str(_project_directory))
 
 
@@ -51,6 +54,8 @@ extensions = [
     "sphinx.ext.autosectionlabel",  # Allow reference sections using its title (https://www.sphinx-doc.org/en/master/usage/extensions/autosectionlabel.html)
     "sphinx.ext.napoleon",  # Support for NumPy and Google style docstrings (https://www.sphinx-doc.org/en/master/usage/extensions/napoleon.html
     "sphinx_click",  # Automatic documentation of click based CLI (https://github.com/click-contrib/sphinx-click)
+    "sphinxcontrib.sphinx_pandera",
+    "sphinx_design",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -98,7 +103,7 @@ autosummary_generate = True  # Turn on sphinx.ext.autosummary
 # Prefix document path to section labels, to use:
 # `path/to/file:heading` instead of just `heading`
 autosectionlabel_prefix_document = True
-
+myst_enable_extensions = ["colon_fence"]
 
 # -- External mapping --------------------------------------------------------
 python_version = ".".join(map(str, sys.version_info[0:2]))

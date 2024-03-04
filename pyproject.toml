@@ -29,13 +29,14 @@ python = "^3.11"
 # Project-Specific
 python-dotenv = "^0.20.0"
 pandera = {version= "^0"}
+sphinx-design = "^0.5.0"
 [tool.poetry.group.documentation]
 optional = true
 [tool.poetry.group.documentation.dependencies]
 
 # Documentation
 importlib-metadata = { version = "^6" }
-myst-parser = { version = "^1" }
+myst-parser = { version = "^2" }
 pygments = { version = "^2" }
 sphinx = { version = "^6" }
 pydata-sphinx-theme = { version = "^0" }

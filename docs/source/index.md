@@ -7,10 +7,9 @@
    :hidden:
    :maxdepth: 1
 
-   readme
    Usage <usage.md>
    Data <data>
-   Notebooks <notebooks>
+   Examples <examples/index.md>
    License <license>
    Changelog <changelog>
 ```
