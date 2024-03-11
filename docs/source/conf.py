@@ -53,7 +53,6 @@ extensions = [
     "sphinx.ext.viewcode",  # Add documentation links to/from source code (https://www.sphinx-doc.org/en/master/usage/extensions/viewcode.html)
     "sphinx.ext.autosectionlabel",  # Allow reference sections using its title (https://www.sphinx-doc.org/en/master/usage/extensions/autosectionlabel.html)
     "sphinx.ext.napoleon",  # Support for NumPy and Google style docstrings (https://www.sphinx-doc.org/en/master/usage/extensions/napoleon.html
-    "sphinx_click",  # Automatic documentation of click based CLI (https://github.com/click-contrib/sphinx-click)
     "sphinxcontrib.sphinx_pandera",
     "sphinx_design",
 ]
