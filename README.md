@@ -15,4 +15,15 @@
 
 ## Features
 
-- TODO
+validators/checks autodocumenter
+   - [x] basic stuff
+   - [x] cross href fields <=> checks
+   - [x] Remove parameters section &co
+   - [ ] Dataframe-level validators
+   - [x] source tags
+   - [x] le, ge, str_matches
+   - [ ] document field categories
+   - [ ] metadata
+Global config class
+   - [ ] basic stuff
+linting
