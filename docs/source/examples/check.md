@@ -14,10 +14,7 @@
 :::{tab-item} sphinx-pandera
 
 ```{eval-rst}
-.. automodule:: target.check_model
-    :members:
-    :undoc-members:
-    :member-order: bysource
+.. autopandera_model:: target.check_model.TestModel
 ```
 
 :::

@@ -74,6 +74,7 @@ yamllint = "1.29.0"
 pre-commit-hooks = "^4.4.0"
 types-docutils = "^0.20.0.20240201"
 pylint-pytest = "^1.1.7"
+ipdb = "^0.13.13"
 
 [tool.poetry.scripts]
 cli = "bin.cli:cli"

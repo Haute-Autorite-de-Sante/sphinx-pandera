@@ -37,7 +37,7 @@ class PanderaModel(PanderaDirectiveBase, PyClasslike):  # type: ignore
     # option_spec = PyClasslike.option_spec.copy()
     # option_spec.update(
     #     {
-    #         "model-signature-prefix": unchanged,
+    #         "members": None,
     #     }
     # )
 

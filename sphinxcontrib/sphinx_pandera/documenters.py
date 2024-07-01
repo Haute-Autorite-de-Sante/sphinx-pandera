@@ -5,6 +5,7 @@ import pandera as pa
 from docutils.parsers.rst.directives import unchanged
 from docutils.statemachine import StringList
 from sphinx.ext.autodoc import (
+    ALL,
     AttributeDocumenter,
     ClassDocumenter,
     MethodDocumenter,
@@ -26,11 +27,11 @@ class PanderaModelDocumenter(ClassDocumenter):
 
     option_spec = dict(ClassDocumenter.option_spec)
 
-    pyautodoc_pass_to_directive = ("model-signature-prefix",)
+    # pyautodoc_pass_to_directive = ("model-signature-prefix",)
 
-    pyautodoc_set_default_option = ("member-order", "undoc-members", "members")
+    # pyautodoc_set_default_option = ("member-order", "undoc-members", "members")
 
-    pyautodoc_prefix = "model"
+    # pyautodoc_prefix = "model"
 
     @classmethod
     def can_document_member(
@@ -51,6 +52,11 @@ class PanderaModelDocumenter(ClassDocumenter):
 
         except TypeError:
             return False
+
+    def document_members(self, *args, **kwargs) -> None:
+        self.options["members"] = ALL
+        self.options["undoc-members"] = ALL
+        super().document_members(*args, **kwargs)
 
     def format_signature(self, **kwargs) -> str:
         """
