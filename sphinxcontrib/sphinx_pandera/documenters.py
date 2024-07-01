@@ -27,12 +27,6 @@ class PanderaModelDocumenter(ClassDocumenter):
 
     option_spec = dict(ClassDocumenter.option_spec)
 
-    # pyautodoc_pass_to_directive = ("model-signature-prefix",)
-
-    # pyautodoc_set_default_option = ("member-order", "undoc-members", "members")
-
-    # pyautodoc_prefix = "model"
-
     @classmethod
     def can_document_member(
         cls, member: Any, membername: str, isattr: bool, parent: Any
