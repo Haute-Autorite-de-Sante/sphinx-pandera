@@ -78,11 +78,7 @@ class PanderaFieldDocumenter(AttributeDocumenter):
     directivetype = "pandera_field"
     priority = 10 + AttributeDocumenter.priority
     option_spec = dict(AttributeDocumenter.option_spec)
-    option_spec.update(
-        {
-            "title": unchanged,
-        }
-    )
+    option_spec.update({"title": unchanged})
     member_order = 0
 
     pyautodoc_pass_to_directive = ("field-signature-prefix",)
@@ -123,6 +119,7 @@ class PanderaFieldDocumenter(AttributeDocumenter):
     def add_directive_header(self, sig: str) -> None:
         """Delegate header options."""
         # Call works only here
+        self.options.no_value = True  # type: ignore
         super().add_directive_header(sig)
 
         self.add_title()
