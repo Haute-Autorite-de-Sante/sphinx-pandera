@@ -9,6 +9,8 @@ from sphinx.ext.autodoc import (
     AttributeDocumenter,
     ClassDocumenter,
     MethodDocumenter,
+    ObjectMembers,
+    get_class_members,
 )
 from sphinx.ext.autodoc.directive import DocumenterBridge
 from sphinx.util.docstrings import prepare_docstring
@@ -54,7 +56,68 @@ class PanderaModelDocumenter(ClassDocumenter):
     def document_members(self, *args, **kwargs) -> None:
         self.options["members"] = ALL
         self.options["undoc-members"] = ALL
+
         super().document_members(*args, **kwargs)
+
+    def format_signature(self, **kwargs) -> str:
+        """
+        hide class arguments
+        """
+        return ""
+
+
+#########
+# Model Config #
+#########
+
+
+class PanderaModelConfigDocumenter(ClassDocumenter):
+    objtype = "pandera_model_config"
+
+    directivetype = "pandera_model_config"
+
+    priority = 10 + ClassDocumenter.priority
+
+    option_spec = dict(ClassDocumenter.option_spec)
+
+    @classmethod
+    def can_document_member(
+        cls, member: Any, membername: str, isattr: bool, parent: Any
+    ) -> bool:
+        try:
+            is_val = super().can_document_member(
+                member, membername, isattr, parent
+            )
+            is_model_config = ("Config" in parent.object.__dict__) and (
+                getattr(member, "__name__", "") == "Config"
+            )
+
+            return is_val and is_model_config
+
+        except TypeError:
+            return False
+
+    def get_object_members(self, want_all: bool) -> tuple[bool, ObjectMembers]:
+        members = get_class_members(
+            self.object,
+            self.objpath,
+            self.get_attr,
+            self.config.autodoc_inherit_docstrings,
+        )
+
+        return False, [
+            m
+            for k, m in members.items()
+            if k in ["strict", "coerce", "ordered"]
+        ]
+
+    def add_content(
+        self,
+        more_content: Optional[StringList],
+        **kwargs,
+    ) -> None:
+        """Delegate additional content creation."""
+        super().add_content(more_content, **kwargs)
 
     def format_signature(self, **kwargs) -> str:
         """

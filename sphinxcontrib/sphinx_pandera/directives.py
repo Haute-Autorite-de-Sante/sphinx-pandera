@@ -37,6 +37,13 @@ class PanderaModel(PanderaDirectiveBase, PyClasslike):  # type: ignore
     default_prefix = "class"
 
 
+class PanderaModelConfig(PanderaDirectiveBase, PyClasslike):  # type: ignore
+    """Specialized directive for pandera model configs."""
+
+    config_name = "model_config"
+    default_prefix = "class"
+
+
 class PanderaField(PanderaDirectiveBase, PyAttribute):  # type: ignore
     """Specialized directive for pandera fields."""
 
