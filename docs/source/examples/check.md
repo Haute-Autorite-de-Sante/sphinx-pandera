@@ -22,9 +22,7 @@
 :::{tab-item} rst
 
 ```markdown
-.. automodule:: target.check_model
-:members:
-:undoc-members:
+.. autopandera_model:: target.check_model.TestModel
 ```
 
 NB: If you want to use markdown with myst-parser, use the eval-rst directive.

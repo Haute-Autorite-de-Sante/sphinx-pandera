@@ -27,6 +27,16 @@ class PanderaModelDocumenter(ClassDocumenter):
 
     option_spec = dict(ClassDocumenter.option_spec)
 
+    def import_object(self, raiseerror: bool = False) -> bool:
+        ret = super().import_object(raiseerror)
+        # HACK: don't remove this call, it caches the imports
+        # so that the field documenter can work properly downstream
+        # there is some type handling that intercepts things
+        # in a weird way
+        if self.object:
+            self.object.to_schema()
+        return ret
+
     @classmethod
     def can_document_member(
         cls, member: Any, membername: str, isattr: bool, parent: Any
@@ -36,12 +46,6 @@ class PanderaModelDocumenter(ClassDocumenter):
                 member, membername, isattr, parent
             )
             is_model = issubclass(member, pa.DataFrameModel)
-            if is_val and is_model:
-                # HACK: don't remove this call, it caches the imports
-                # so that the field documenter can work properly downstream
-                # there is some type handling that intercepts things
-                # in a weird way
-                member.to_schema()
             return is_val and is_model
 
         except TypeError:

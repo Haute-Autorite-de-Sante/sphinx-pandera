@@ -11,27 +11,18 @@
 
 :::
 
-
 :::{tab-item} sphinx-pandera
 
 ```{eval-rst}
-.. automodule:: target.basic_model
-    :members:
-    :undoc-members:
+.. autopandera_model:: target.basic_model.TestModel
 ```
 
 :::
 
 :::{tab-item} rst
 
-
-
 ```markdown
-
-.. automodule:: target.basic_model
-    :members:
-    :undoc-members:  
-
+.. autopandera_model:: target.basic_model.TestModel
 ```
 
 NB: If you want to use markdown with myst-parser, use the eval-rst directive.
