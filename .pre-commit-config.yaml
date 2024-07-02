@@ -35,8 +35,8 @@ repos:
       - id: mypy
         name: mypy
         language: system
-        types: [python]
         entry: poetry run mypy
+        pass_filenames: false
         #
       - id: pylint
         name: pylint
