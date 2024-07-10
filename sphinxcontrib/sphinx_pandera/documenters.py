@@ -1,5 +1,5 @@
 import inspect
-from typing import Any, Optional
+from typing import Any, List, Optional
 
 import pandera as pa
 from docutils.parsers.rst.directives import unchanged
@@ -9,7 +9,7 @@ from sphinx.ext.autodoc import (
     AttributeDocumenter,
     ClassDocumenter,
     MethodDocumenter,
-    ObjectMembers,
+    ObjectMember,
     get_class_members,
 )
 from sphinx.ext.autodoc.directive import DocumenterBridge
@@ -97,7 +97,9 @@ class PanderaModelConfigDocumenter(ClassDocumenter):
         except TypeError:
             return False
 
-    def get_object_members(self, want_all: bool) -> tuple[bool, ObjectMembers]:
+    def get_object_members(
+        self, want_all: bool
+    ) -> tuple[bool, List[ObjectMember]]:
         members = get_class_members(
             self.object,
             self.objpath,

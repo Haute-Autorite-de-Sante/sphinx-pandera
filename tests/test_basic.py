@@ -17,7 +17,7 @@ import pytest
                 "",
                 "   .. py:pandera_model_config:: TestModel.Config",
                 "      :module: target.basic_model",
-                "      :canonical: pandera.api.pandas.model.Config",
+                "      :canonical: pandera.api.dataframe.model.Config",
                 "",
                 "",
                 "      .. py:attribute:: TestModel.Config.coerce",

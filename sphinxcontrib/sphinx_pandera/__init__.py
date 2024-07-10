@@ -44,9 +44,9 @@ def add_configuration_values(app: Sphinx):
     stem = "sphinx_pandera_"
 
     app.add_config_value(
-        f"{stem}model_signature_prefix", "pandera model", True, str
+        f"{stem}model_signature_prefix", "pandera model", "env", str
     )
 
-    app.add_config_value(f"{stem}field_signature_prefix", "column", True, str)
+    app.add_config_value(f"{stem}field_signature_prefix", "column", "env", str)
 
-    app.add_config_value(f"{stem}check_signature_prefix", "check", True, str)
+    app.add_config_value(f"{stem}check_signature_prefix", "check", "env", str)
