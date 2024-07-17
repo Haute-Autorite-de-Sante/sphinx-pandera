@@ -1,14 +1,14 @@
 """Sphinx Pandera."""
 
 from sphinx.application import Sphinx
-from sphinx.domains import ObjType
-from sphinx_pandera.directives import (
+
+from sphinxcontrib.sphinx_pandera.directives import (
     PanderaCheck,
     PanderaField,
     PanderaModel,
     PanderaModelConfig,
 )
-from sphinx_pandera.documenters import (
+from sphinxcontrib.sphinx_pandera.documenters import (
     PanderaCheckDocumenter,
     PanderaFieldDocumenter,
     PanderaModelConfigDocumenter,
