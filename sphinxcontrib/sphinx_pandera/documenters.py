@@ -56,6 +56,7 @@ class PanderaModelDocumenter(ClassDocumenter):
     def document_members(self, *args, **kwargs) -> None:
         self.options["members"] = ALL
         self.options["undoc-members"] = ALL
+        self.options["member-order"] = "bysource"
 
         super().document_members(*args, **kwargs)
 
