@@ -4,7 +4,13 @@ from docutils import nodes
 from docutils.nodes import Text
 from docutils.parsers.rst.directives import unchanged
 from sphinx.addnodes import desc_annotation, desc_sig_space, desc_signature
-from sphinx.domains.python import PyAttribute, PyClasslike, PyMethod, py_sig_re
+from sphinx.domains.python import (
+    PyAttribute,
+    PyClasslike,
+    PyMethod,
+    PyVariable,
+    py_sig_re,
+)
 
 TupleStr = Tuple[str, str]
 
@@ -28,6 +34,21 @@ class PanderaDirectiveBase:
         value = prefix or self.default_prefix
 
         return [Text(value), desc_sig_space()]
+
+
+class PanderaSchema(PanderaDirectiveBase, PyVariable):  # type: ignore
+    """Specialized directive for pandera models."""
+
+    config_name = "schema"
+    # default_prefix = "class"
+
+    def handle_signature(self, sig: str, signode: desc_signature) -> TupleStr:
+        """Removes variable value from signature"""
+        # HACK
+        self.options["value"] = False
+        fullname, prefix = super().handle_signature(sig, signode)
+
+        return fullname, prefix
 
 
 class PanderaModel(PanderaDirectiveBase, PyClasslike):  # type: ignore

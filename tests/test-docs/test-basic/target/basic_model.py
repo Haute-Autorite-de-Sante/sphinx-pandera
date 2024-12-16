@@ -7,5 +7,6 @@ class TestModel(pa.DataFrameModel):
     """
 
     field1: int = pa.Field(
-        title="Field 1 Title", description="My field  description"
+        title="Field 1 Title",
+        description="My field description",
     )
