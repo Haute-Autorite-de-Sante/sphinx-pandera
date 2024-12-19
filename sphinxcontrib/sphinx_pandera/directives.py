@@ -83,12 +83,15 @@ class PanderaField(PanderaDirectiveBase, PyAttribute):  # type: ignore
         `PyObject.handle_signature`.
 
         """
-
         return py_sig_re.match(sig).groups()[1]  # type: ignore[union-attr]
 
     def handle_signature(self, sig: str, signode: desc_signature) -> TupleStr:
         """add field title"""
         fullname, prefix = super().handle_signature(sig, signode)
+
+        # HACK: pop module/variable name from field signature for pandera schema
+        if "." in signode[1].astext():
+            signode.pop(1)
         title = self.options.get("title")
         if title is not None:
             signode += desc_annotation("", f", {title}")
