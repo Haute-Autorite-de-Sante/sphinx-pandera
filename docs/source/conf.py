@@ -6,11 +6,6 @@ from datetime import datetime
 from typing import List
 
 import importlib_metadata
-from dotenv import load_dotenv
-
-# Load user-specific env vars (e.g. secrets) from a `.env` file
-load_dotenv()
-
 
 # -- Path setup --------------------------------------------------------------
 

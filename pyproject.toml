@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "sphinx-pandera"
-version = "0.0.3"
+version = "0.0.4"
 description = "Sphinx Pandera"
 authors = ["Timothée Chehab <t.chehab@has-sante.fr>", "Matthieu Doutreligne <m.doutreligne@has-sante.fr>"]
 license = "EUPL-v1.2"
@@ -27,7 +27,6 @@ packages = [ {include = "sphinxcontrib"}]
 python = "^3.11"
 
 # Project-Specific
-python-dotenv = "^0.20.0"
 pandera = {version= "^0"}
 sphinx = { version = ">=7"}
 
