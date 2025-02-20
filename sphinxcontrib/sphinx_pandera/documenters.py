@@ -123,7 +123,7 @@ class PanderaSchemaDocumenter(DataDocumenter):
             self.add_line("", source_name)
 
             if not field.checks:
-                return
+                continue
 
             source_name = self.get_sourcename()
             self.add_line("   :Validated by:", source_name)
