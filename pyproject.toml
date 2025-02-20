@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "sphinx-pandera"
-version = "0.0.4"
+version = "0.0.5"
 description = "Sphinx Pandera"
 authors = ["Timothée Chehab <t.chehab@has-sante.fr>", "Matthieu Doutreligne <m.doutreligne@has-sante.fr>"]
 license = "EUPL-v1.2"
