@@ -1,8 +1,8 @@
 [tool.poetry]
 name = "sphinx-pandera"
-version = "0.0.0"
+version = "0.0.5"
 description = "Sphinx Pandera"
-authors = ["Timothée Chehab <t.chehab@has-sante.fr>"]
+authors = ["Timothée Chehab <t.chehab@has-sante.fr>", "Matthieu Doutreligne <m.doutreligne@has-sante.fr>"]
 license = "EUPL-v1.2"
 readme = "README.md"
 repository = "https://gitlab.has-sante.fr/has-sante/public/alpha/sphinx-pandera"
@@ -18,7 +18,7 @@ classifiers = [
     "Programming Language :: Python",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
-packages = [ {include = "sphinx_pandera", from="sphinxcontrib"}]
+packages = [ {include = "sphinxcontrib"}]
 
 # [tool.poetry.urls]
 # Changelog = "https://gitlab.has-sante.fr/has-sante/public/alpha/sphinx-pandera/releases"
@@ -27,10 +27,8 @@ packages = [ {include = "sphinx_pandera", from="sphinxcontrib"}]
 python = "^3.11"
 
 # Project-Specific
-python-dotenv = "^0.20.0"
 pandera = {version= "^0"}
-sphinx-design = "^0.5.0"
-sphinx = { version = "^6" }
+sphinx = { version = ">=7"}
 
 [tool.poetry.group.documentation]
 optional = true
@@ -41,9 +39,11 @@ importlib-metadata = { version = "^6" }
 myst-parser = { version = "^2" }
 pygments = { version = "^2" }
 pydata-sphinx-theme = { version = "^0" }
+sphinx-design = "^0.5.0"
 
 [tool.poetry.group.dev.dependencies]
 # Testing
+sphinx = { version = ">=7", extras=["test"] }
 pytest = "^8"
 pytest-cov = "^3"
 pytest-mock = "^3"
@@ -121,6 +121,7 @@ line_length = 79
 [tool.mypy]
 disallow_untyped_defs = false
 files = ["sphinxcontrib/sphinx_pandera/*.py"]
+explicit_package_bases = true
 
 ignore_missing_imports = true
 pretty = true

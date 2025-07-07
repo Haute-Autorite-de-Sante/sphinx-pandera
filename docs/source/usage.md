@@ -4,8 +4,6 @@
 
 - TODO
 
-
-
 # Installation
 
 You can install Sphinx Pandera via [pip](https://pip.pypa.io/):
@@ -13,30 +11,6 @@ You can install Sphinx Pandera via [pip](https://pip.pypa.io/):
 ```shell script
 pip install sphinx-pandera
 ```
-
-# Using the project
-
-- TODO
-
-## Running the project
-
-> 📝 **Note**
-> All following commands are relative to the project root directory and assume
-> `make` is installed.
-
-You can run the project as follows:
-
-### Locally via Poetry
-
-Run:
-
-```shell script
-make provision-environment # Note: installs ALL dependencies!
-poetry shell # Activate the project's virtual environment
-cli main # Run the project main entrypoint
-```
-
-
 
 # Development
 
@@ -63,10 +37,6 @@ make provision-environment
 > Invoking the above without `poetry` installed will emit a
 > helpful error message letting you know how you can install poetry.
 
-
-
-
-
 ## Testing
 
 We use [pytest](https://pytest.readthedocs.io/) for our testing framework.
@@ -76,8 +46,6 @@ To invoke the tests, run:
 ```shell script
 make test
 ```
-
-
 
 ## Code Quality
 
@@ -109,9 +77,6 @@ make install-pre-commit-hooks
 > (unless it is allowed to fail)
 > or a file is modified by an auto-formatting job;
 > in the latter case, you may simply repeat the commit and it should pass.
->
-
-
 
 ## Documentation
 
@@ -122,3 +87,13 @@ make docs-clean docs-html
 > 📝 **Note**
 > This command will generate html files in `docs/_build/html`.
 > The home page is the `docs/_build/html/index.html` file.
+
+## Publishing a new release on pypi
+
+1. Check in `pyproject.toml` that the version of the package is correct
+1. `git tag -a 0.0.3` the revision you want to release
+1. `git push --tags`
+1. In Gitlab create a new release from tag
+1. Sync repo in github
+1. ` export POETRY_PYPI_TOKEN_PYPI=<your scoped pypi token>`
+1. `poetry publish --build` to push to pypi

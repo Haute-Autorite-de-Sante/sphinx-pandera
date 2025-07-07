@@ -1,5 +1,5 @@
 import inspect
-from typing import Any, Optional
+from typing import Any, List, Optional
 
 import pandera as pa
 from docutils.parsers.rst.directives import unchanged
@@ -8,12 +8,183 @@ from sphinx.ext.autodoc import (
     ALL,
     AttributeDocumenter,
     ClassDocumenter,
+    DataDocumenter,
     MethodDocumenter,
-    ObjectMembers,
+    ObjectMember,
     get_class_members,
 )
 from sphinx.ext.autodoc.directive import DocumenterBridge
 from sphinx.util.docstrings import prepare_docstring
+
+##########
+# Schema #
+##########
+
+
+class PanderaSchemaDocumenter(DataDocumenter):
+    objtype = "pandera_schema"
+    directivetype = "pandera_schema"
+
+    priority = 10 + DataDocumenter.priority
+
+    option_spec = dict(DataDocumenter.option_spec)
+
+    @classmethod
+    def can_document_member(
+        cls, member: Any, membername: str, isattr: bool, parent: Any
+    ) -> bool:
+        try:
+            is_val = super().can_document_member(
+                member, membername, isattr, parent
+            )
+            is_model = issubclass(member, pa.DataFrameSchema)
+            return is_val and is_model
+
+        except TypeError:
+            return False
+
+    def add_content(  # pylint: disable=unused-argument
+        self,
+        more_content: Optional[StringList],
+        **kwargs,
+    ) -> None:
+        """Delegate additional content creation."""
+        self.add_title()
+        self.add_description()
+        self.add_config()
+        self.add_fields()
+        self.add_field_validators()
+        self.add_schema_validators()
+
+    def add_title(self):
+        if not self.object.title:
+            return
+        self.add_line(f"   :title: {self.object.title}", self.get_sourcename())
+
+    def add_description(self):
+        """Adds description from schema if present."""
+        description = self.object.description
+
+        if not description:
+            return
+        tabsize = self.directive.state.document.settings.tab_width
+        lines = prepare_docstring(description, tabsize=tabsize)
+        source_name = self.get_sourcename()
+
+        for line in lines:
+            self.add_line(line, source_name)
+        self.add_line("", source_name)
+
+    def add_config(self):
+        """
+        Adds schema level configuration
+        """
+        source_name = self.get_sourcename()
+        self.add_line(":Schema Configuration:", source_name)
+        config = {
+            "coerce": self.object.coerce,
+            "ordered": self.object.ordered,
+            "strict": self.object.strict,
+        }
+        for key, value in config.items():
+            self.add_line(f"      - **{key}** = {value}", source_name)
+        self.add_line("", source_name)
+
+    def add_fields(self):
+        """
+        Adds fields description
+        """
+        source_name = self.get_sourcename()
+        for field in self.object.columns.values():
+            self.add_line(
+                f".. py:pandera_field:: {'.'.join(self.objpath)}.{field.name}",
+                source_name,
+            )
+            self.add_line(f"   :type: {field.dtype}", source_name)
+            if field.title is not None:
+                self.add_line(f"   :title: {field.title}", source_name)
+
+            constraints = {
+                "nullable": field.nullable,
+                "unique": field.unique,
+                "coerce": field.coerce,
+                "required": field.required,
+            }
+
+            if field.description is not None:
+                self.add_line("", source_name)
+                self.add_line(f"   {field.description}", source_name)
+
+            self.add_line("", source_name)
+            self.add_line("   :Constraints:", source_name)
+            for key, value in constraints.items():
+                self.add_line(f"      - **{key}** = {value}", source_name)
+
+            self.add_line("", source_name)
+
+            if not field.checks:
+                continue
+
+            source_name = self.get_sourcename()
+            self.add_line("   :Validated by:", source_name)
+            for check in field.checks:
+                # HACK: standard checks implement nice error message
+                if check.error:
+                    line = f"      - **{check.error}**"
+                else:
+                    ref = f"{self.modname}.{check.name}"
+                    line = f"      - :py:obj:`{check.name} <{ref}>`"
+                self.add_line(line, source_name)
+
+            self.add_line("", source_name)
+
+    def add_field_validators(self):
+        """
+        Add custom field validators
+        """
+        field_validators = {}
+        source_name = self.get_sourcename()
+        for field in self.object.columns.values():
+            for check in field.checks:
+                # HACK: standard checks implement nice error message
+                if check.error:
+                    continue
+                check_d = field_validators.setdefault(
+                    check.name,
+                    {
+                        "doc": check._check_fn.__doc__.strip(),  # pylint: disable=protected-access
+                        "fields": [],
+                    },
+                )
+                check_d["fields"].append(field.name)
+
+        for check_name, check_d in field_validators.items():
+            self.add_line(f".. py:pandera_check:: {check_name}", source_name)
+            self.add_line("", source_name)
+            self.add_line(f"   {check_d['doc']}", source_name)
+            self.add_line("", source_name)
+            self.add_line("   :Validates:", source_name)
+
+            for field in check_d["fields"]:
+                self.add_line(f"      - :py:obj:`{field}`", source_name)
+
+        self.add_line("", source_name)
+
+    def add_schema_validators(self):
+        """
+        Add custom schema validators
+        """
+        source_name = self.get_sourcename()
+        if not self.object.checks:
+            return
+
+        for check in self.object.checks:
+            self.add_line(
+                f".. py:pandera_check:: {check.__name__}", source_name
+            )
+            self.add_line("", source_name)
+            self.add_line(f"   {check.__doc__.strip()}", source_name)
+
 
 #########
 # Model #
@@ -56,6 +227,7 @@ class PanderaModelDocumenter(ClassDocumenter):
     def document_members(self, *args, **kwargs) -> None:
         self.options["members"] = ALL
         self.options["undoc-members"] = ALL
+        self.options["member-order"] = "bysource"
 
         super().document_members(*args, **kwargs)
 
@@ -97,7 +269,9 @@ class PanderaModelConfigDocumenter(ClassDocumenter):
         except TypeError:
             return False
 
-    def get_object_members(self, want_all: bool) -> tuple[bool, ObjectMembers]:
+    def get_object_members(
+        self, want_all: bool
+    ) -> tuple[bool, List[ObjectMember]]:
         members = get_class_members(
             self.object,
             self.objpath,
@@ -150,7 +324,7 @@ class PanderaFieldDocumenter(AttributeDocumenter):
         self, directive: DocumenterBridge, name: str, indent: str = ""
     ) -> None:
         super().__init__(directive, name, indent)
-        self.pandera_schema = None
+        self._pandera_schema = None
 
     @classmethod
     def can_document_member(
@@ -170,6 +344,16 @@ class PanderaFieldDocumenter(AttributeDocumenter):
         is_field = membername in parent.object._get_model_attrs()
 
         return is_valid and is_field
+
+    @property
+    def pandera_schema(self) -> pa.DataFrameSchema:
+        """Provide the pandera field name which refers to the member name of
+        the parent pandera model.
+
+        """
+        if self._pandera_schema is None:
+            self._pandera_schema = self.parent.to_schema()
+        return self._pandera_schema  # type: ignore
 
     @property
     def pandera_field_name(self) -> str:
@@ -192,8 +376,7 @@ class PanderaFieldDocumenter(AttributeDocumenter):
         """
         Get pandera field
         """
-        # pylint: disable-next=protected-access
-        return self.parent._get_model_attrs()[self.pandera_field_name]
+        return self.pandera_schema.columns[self.object]
 
     def add_content(
         self,
@@ -201,19 +384,21 @@ class PanderaFieldDocumenter(AttributeDocumenter):
         **kwargs,
     ) -> None:
         """Delegate additional content creation."""
+
         super().add_content(more_content, **kwargs)
-        self.pandera_schema = self.parent.to_schema()
         self.add_description()
         self.add_constraints()
         self.add_checks()
 
     def add_title(self):
         """Add title option for field directive"""
-
         if not self.pandera_field.title:
             return
         sourcename = self.get_sourcename()
-        self.add_line(f"   :title: {self.pandera_field.title}", sourcename)
+        self.add_line(
+            f"   :title: {self.pandera_field.title}",
+            sourcename,
+        )
 
     def add_description(self):
         """Adds description from schema if present."""
@@ -237,6 +422,7 @@ class PanderaFieldDocumenter(AttributeDocumenter):
             "nullable": self.pandera_field.nullable,
             "unique": self.pandera_field.unique,
             "coerce": self.pandera_field.coerce,
+            "required": self.pandera_field.required,
         }
 
         source_name = self.get_sourcename()
@@ -257,7 +443,7 @@ class PanderaFieldDocumenter(AttributeDocumenter):
         """
         Adds section showing all checks
         """
-        checks = self.pandera_schema.columns[self.pandera_field_name].checks
+        checks = self.pandera_field.checks
 
         if not checks:
             return
