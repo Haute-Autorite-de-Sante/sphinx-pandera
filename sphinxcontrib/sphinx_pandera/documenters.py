@@ -10,11 +10,13 @@ from sphinx.ext.autodoc import (
     ClassDocumenter,
     DataDocumenter,
     MethodDocumenter,
+    ModuleDocumenter,
     ObjectMember,
     get_class_members,
 )
 from sphinx.ext.autodoc.directive import DocumenterBridge
 from sphinx.util.docstrings import prepare_docstring
+from sphinxcontrib.sphinx_pandera.inspection import ModelInspector
 
 ##########
 # Schema #
@@ -22,6 +24,10 @@ from sphinx.util.docstrings import prepare_docstring
 
 
 class PanderaSchemaDocumenter(DataDocumenter):
+    """
+    Documenter for pandera Schema models. Schemas are not classes, but instances.
+    Note that a Model (a class) can be converted to a Schema (an instance) using ``.to_schema()``
+    """
     objtype = "pandera_schema"
     directivetype = "pandera_schema"
 
@@ -33,15 +39,17 @@ class PanderaSchemaDocumenter(DataDocumenter):
     def can_document_member(
         cls, member: Any, membername: str, isattr: bool, parent: Any
     ) -> bool:
-        try:
-            is_val = super().can_document_member(
-                member, membername, isattr, parent
-            )
-            is_model = issubclass(member, pa.DataFrameSchema)
-            return is_val and is_model
 
-        except TypeError:
-            return False
+        is_val = super().can_document_member(member, membername, isattr, parent)
+        is_schema = ModelInspector.is_pandera_schema(member)
+
+        # HACK to avoid checking for `is_val` when this is a schema. Indeed `isattr` seems to be false for package data
+        if is_schema:
+            # print(f"*********** {member}: by PanderaSchemaDocumenter")
+            if not is_val:
+                is_val = isinstance(parent, ModuleDocumenter)
+
+        return is_schema and is_val
 
     def add_content(  # pylint: disable=unused-argument
         self,
@@ -207,6 +215,7 @@ class PanderaModelDocumenter(ClassDocumenter):
         # there is some type handling that intercepts things
         # in a weird way
         if self.object:
+            # Convert pandera Model (class) to Schema (instance) so that it can be handlded by PanderaSchemaDocumenter
             self.object.to_schema()
         return ret
 
@@ -214,15 +223,13 @@ class PanderaModelDocumenter(ClassDocumenter):
     def can_document_member(
         cls, member: Any, membername: str, isattr: bool, parent: Any
     ) -> bool:
-        try:
-            is_val = super().can_document_member(
-                member, membername, isattr, parent
-            )
-            is_model = issubclass(member, pa.DataFrameModel)
-            return is_val and is_model
+        """Filter only pandera models"""
 
-        except TypeError:
-            return False
+        is_val = super().can_document_member(member, membername, isattr, parent)
+        is_model = ModelInspector.is_pandera_model(member)
+        # if is_val and is_model:
+        #     print(f"*********** {member}: by PanderaModelDocumenter")
+        return is_val and is_model
 
     def document_members(self, *args, **kwargs) -> None:
         self.options["members"] = ALL
@@ -256,18 +263,12 @@ class PanderaModelConfigDocumenter(ClassDocumenter):
     def can_document_member(
         cls, member: Any, membername: str, isattr: bool, parent: Any
     ) -> bool:
-        try:
-            is_val = super().can_document_member(
-                member, membername, isattr, parent
-            )
-            is_model_config = ("Config" in parent.object.__dict__) and (
-                getattr(member, "__name__", "") == "Config"
-            )
-
-            return is_val and is_model_config
-
-        except TypeError:
-            return False
+        is_val = super().can_document_member(member, membername, isattr, parent)
+        is_model_config = ModelInspector.is_pandera_model_config(member, parent.object)
+        # if is_model_config:
+        #     print(f"*********** {member}: by PanderaModelConfigDocumenter")
+        #     super().can_document_member(member, membername, isattr, parent)
+        return is_val and is_model_config
 
     def get_object_members(
         self, want_all: bool
@@ -332,18 +333,12 @@ class PanderaFieldDocumenter(AttributeDocumenter):
     ) -> bool:
         """Filter only pandera fields."""
 
-        is_valid = super().can_document_member(
-            member, membername, isattr, parent
-        )
-        try:
-            if not issubclass(parent.object, pa.DataFrameModel):
-                return False
-        except TypeError:
-            return False
-        # pylint: disable-next=protected-access
-        is_field = membername in parent.object._get_model_attrs()
-
-        return is_valid and is_field
+        is_valid = super().can_document_member(member, membername, isattr, parent)
+        is_field = ModelInspector.is_pandera_field(parent=parent.object, field_name=membername)
+        # if is_valid and is_field:
+        #     print(f"*********** {member}: by PanderaFieldDocumenter")
+        #     super().can_document_member(member, membername, isattr, parent)
+        return is_valid and is_field  # and isattr
 
     @property
     def pandera_schema(self) -> pa.DataFrameSchema:
@@ -482,21 +477,11 @@ class PanderaCheckDocumenter(MethodDocumenter):
     ) -> bool:
         """Filter only pandera fields."""
 
-        is_valid = super().can_document_member(
-            member, membername, isattr, parent
-        )
-        try:
-            if not issubclass(parent.object, pa.DataFrameModel):
-                return False
-        except TypeError:
-            return False
-        # pylint: disable-next=protected-access
-        model_attrs = parent.object._get_model_attrs()
-
-        is_check = membername in model_attrs and isinstance(
-            model_attrs[membername], classmethod
-        )
-
+        is_valid = super().can_document_member(member, membername, isattr, parent)
+        is_check = ModelInspector.is_checker_by_name(membername, parent.object)
+        if is_check:
+            print(f"*********** {member}: by PanderaCheckDocumenter")
+            print("TODO : THIS DOES NOT SEEM TO WORK CORRECTLY YET")
         return is_valid and is_check
 
     def get_checked_columns(self):
