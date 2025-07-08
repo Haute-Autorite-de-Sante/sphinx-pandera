@@ -430,9 +430,12 @@ class PanderaFieldDocumenter(AttributeDocumenter):
         # 1. find func obj from name
         # 2. build ref
         obj = getattr(self.parent, check.name)
-        module = inspect.getmodule(obj)
+        # module = inspect.getmodule(obj)
 
-        return f"{module.__name__}.{self.parent}.{check.name}"
+        # Rely on self (the FieldDocumenter instance)'s module name instead of `inspect.getmodule`
+        # So that the cross-reference will work if the symbol is imported by autodoc
+        # from an __init__.py instead of the full module path.
+        return f"{self.modname}.{obj.__qualname__}"
 
     def add_checks(self):
         """
@@ -496,9 +499,14 @@ class PanderaCheckDocumenter(MethodDocumenter):
         return columns
 
     def get_column_func_ref(self, column):
-        module = inspect.getmodule(self.parent)
+        # module = inspect.getmodule(self.parent)
 
-        return f"{module.__name__}.{self.parent}.{column.name}"
+        # obj = self.parent._get_model_attrs()[column.name]
+
+        # Rely on self (the CheckDocumenter instance)'s module name instead of `inspect.getmodule`
+        # So that the cross-reference will work if the symbol is imported by autodoc
+        # from an __init__.py instead of the full module path.
+        return f"{self.modname}.{self.parent}.{column.name}"  # {obj.__qualname__}"
 
     def add_content(
         self, more_content: Optional[StringList], **kwargs
