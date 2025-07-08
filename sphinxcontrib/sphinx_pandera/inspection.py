@@ -8,6 +8,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from pandera.api.dataframe.model_components import CHECK_KEY, DATAFRAME_CHECK_KEY
+
 if TYPE_CHECKING:
     from typing import Any
 
@@ -66,7 +68,17 @@ class ModelInspector:
 
             # pylint: disable-next=protected-access
             model_attrs = obj._get_model_attrs()
-            is_check = name in model_attrs and isinstance(model_attrs[name], classmethod)
+
+            # There is no public API in DataFrameModel to list the checks so let's convert to schema ?
+            # Unfortunately DataFrameSchema.checks only contains dataframe checks, not column checks
+            # model_checks = obj.to_schema().checks
+            # check_names = {c.name for c in model_checks}
+
+            is_check = (
+                name in model_attrs
+                and (hasattr(model_attrs[name], CHECK_KEY) or hasattr(model_attrs[name], DATAFRAME_CHECK_KEY))
+                and isinstance(model_attrs[name], classmethod)
+            )
             return is_check
 
         return False
