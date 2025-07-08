@@ -24,7 +24,7 @@ packages = [ {include = "sphinxcontrib"}]
 # Changelog = "https://gitlab.has-sante.fr/has-sante/public/alpha/sphinx-pandera/releases"
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = ">=3.9,<3.12"
 
 # Project-Specific
 pandera = {version= "^0"}
