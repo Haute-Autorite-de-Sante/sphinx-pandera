@@ -371,7 +371,15 @@ class PanderaFieldDocumenter(AttributeDocumenter):
         """
         Get pandera field
         """
-        return self.pandera_schema.columns[self.object]
+        try:
+            # A Column ?
+            return self.pandera_schema.columns[self.object]
+        except KeyError as e:
+            # This might be the Index !
+            idx = self.pandera_schema.index
+            if idx.name == self.object:
+                return idx
+            raise e from e
 
     def add_content(
         self,
@@ -417,8 +425,11 @@ class PanderaFieldDocumenter(AttributeDocumenter):
             "nullable": self.pandera_field.nullable,
             "unique": self.pandera_field.unique,
             "coerce": self.pandera_field.coerce,
-            "required": self.pandera_field.required,
         }
+        try:
+            constraints["required"] = self.pandera_field.required
+        except AttributeError:
+            constraints["required"] = "True (Index)"
 
         source_name = self.get_sourcename()
         self.add_line(":Constraints:", source_name)
@@ -482,9 +493,8 @@ class PanderaCheckDocumenter(MethodDocumenter):
 
         is_valid = super().can_document_member(member, membername, isattr, parent)
         is_check = ModelInspector.is_checker_by_name(membername, parent.object)
-        if is_check:
-            print(f"*********** {member}: by PanderaCheckDocumenter")
-            print("TODO : THIS DOES NOT SEEM TO WORK CORRECTLY YET")
+        # if is_check:
+        #     print(f"*********** {member}: by PanderaCheckDocumenter")
         return is_valid and is_check
 
     def get_checked_columns(self):
