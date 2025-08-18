@@ -375,6 +375,7 @@ class PanderaFieldDocumenter(AttributeDocumenter):
             # A Column ?
             return self.pandera_schema.columns[self.object]
         except KeyError as e:
+            # GH#5 - TODO still needed ?
             # This might be the Index !
             idx = self.pandera_schema.index
             if idx.name == self.object:
@@ -429,6 +430,7 @@ class PanderaFieldDocumenter(AttributeDocumenter):
         try:
             constraints["required"] = self.pandera_field.required
         except AttributeError:
+            # GH#5 - TODO still needed ?
             constraints["required"] = "True (Index)"
 
         source_name = self.get_sourcename()
