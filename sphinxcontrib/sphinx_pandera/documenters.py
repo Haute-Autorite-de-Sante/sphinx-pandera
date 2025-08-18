@@ -45,7 +45,6 @@ class PanderaSchemaDocumenter(DataDocumenter):
 
         # HACK to avoid checking for `is_val` when this is a schema. Indeed `isattr` seems to be false for package data
         if is_schema:
-            # print(f"*********** {member}: by PanderaSchemaDocumenter")
             if not is_val:
                 is_val = isinstance(parent, ModuleDocumenter)
 
@@ -215,7 +214,7 @@ class PanderaModelDocumenter(ClassDocumenter):
         # there is some type handling that intercepts things
         # in a weird way
         if self.object:
-            # Convert pandera Model (class) to Schema (instance) so that it can be handlded by PanderaSchemaDocumenter
+            # Convert pandera Model (class) to Schema (instance) so that it can be handled by PanderaSchemaDocumenter
             self.object.to_schema()
         return ret
 
@@ -227,8 +226,6 @@ class PanderaModelDocumenter(ClassDocumenter):
 
         is_val = super().can_document_member(member, membername, isattr, parent)
         is_model = ModelInspector.is_pandera_model(member)
-        # if is_val and is_model:
-        #     print(f"*********** {member}: by PanderaModelDocumenter")
         return is_val and is_model
 
     def document_members(self, *args, **kwargs) -> None:
@@ -265,9 +262,6 @@ class PanderaModelConfigDocumenter(ClassDocumenter):
     ) -> bool:
         is_val = super().can_document_member(member, membername, isattr, parent)
         is_model_config = ModelInspector.is_pandera_model_config(member, parent.object)
-        # if is_model_config:
-        #     print(f"*********** {member}: by PanderaModelConfigDocumenter")
-        #     super().can_document_member(member, membername, isattr, parent)
         return is_val and is_model_config
 
     def get_object_members(
@@ -335,9 +329,6 @@ class PanderaFieldDocumenter(AttributeDocumenter):
 
         is_valid = super().can_document_member(member, membername, isattr, parent)
         is_field = ModelInspector.is_pandera_field(parent=parent.object, field_name=membername)
-        # if is_valid and is_field:
-        #     print(f"*********** {member}: by PanderaFieldDocumenter")
-        #     super().can_document_member(member, membername, isattr, parent)
         return is_valid and is_field  # and isattr
 
     @property
@@ -495,8 +486,6 @@ class PanderaCheckDocumenter(MethodDocumenter):
 
         is_valid = super().can_document_member(member, membername, isattr, parent)
         is_check = ModelInspector.is_checker_by_name(membername, parent.object)
-        # if is_check:
-        #     print(f"*********** {member}: by PanderaCheckDocumenter")
         return is_valid and is_check
 
     def get_checked_columns(self):
