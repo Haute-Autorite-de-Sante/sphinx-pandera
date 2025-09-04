@@ -96,47 +96,74 @@ class PanderaSchemaDocumenter(DataDocumenter):
         """
         source_name = self.get_sourcename()
         for field in self.object.columns.values():
-            self.add_line(
-                f".. py:pandera_field:: {'.'.join(self.objpath)}.{field.name}",
-                source_name,
-            )
-            self.add_line(f"   :type: {field.dtype}", source_name)
-            if field.title is not None:
-                self.add_line(f"   :title: {field.title}", source_name)
+            self.add_field(field, source_name)
 
-            constraints = {
-                "nullable": field.nullable,
-                "unique": field.unique,
-                "coerce": field.coerce,
-                "required": field.required,
-            }
+        if isinstance(self.object.index, pa.MultiIndex):
+            indices = self.object.index.named_indexes
+        else:
+            indices = {self.object.index.name: self.object.index}
 
-            if field.description is not None:
-                self.add_line("", source_name)
-                self.add_line(f"   {field.description}", source_name)
+        for idx_name, idx in indices.items():
+            # HACK: this determines if an index will be documented or not
+            # We should find a better way to identify if the index was specified
+            # explicitely in the schema
+            if idx.name is not None:
+                self.add_field(idx, idx_name, is_index=True)
 
+    def add_field(self, field, source_name, is_index=False):
+        """
+        Adds a field with custom prefix if the field is an index
+        """
+
+        self.add_line(
+            f".. py:pandera_field:: {'.'.join(self.objpath)}.{field.name}",
+            source_name,
+        )
+
+        if is_index:
+            self.add_line(f"   :type: Index[{field.dtype }]", source_name)
+        else:
+            self.add_line(f"   :type: {field.dtype }", source_name)
+        if field.title is not None:
+            self.add_line(f"   :title: {field.title}", source_name)
+
+        constraints = {
+            "nullable": field.nullable,
+            "unique": field.unique,
+            "coerce": field.coerce,
+        }
+
+        try:
+            constraints["required"] = field.required
+        except AttributeError:  # Field is an Index or MultiIndex
+            constraints["required"] = "True (Index)"
+
+        if field.description is not None:
             self.add_line("", source_name)
-            self.add_line("   :Constraints:", source_name)
-            for key, value in constraints.items():
-                self.add_line(f"      - **{key}** = {value}", source_name)
+            self.add_line(f"   {field.description}", source_name)
 
-            self.add_line("", source_name)
+        self.add_line("", source_name)
+        self.add_line("   :Constraints:", source_name)
+        for key, value in constraints.items():
+            self.add_line(f"      - **{key}** = {value}", source_name)
 
-            if not field.checks:
-                continue
+        self.add_line("", source_name)
 
-            source_name = self.get_sourcename()
-            self.add_line("   :Validated by:", source_name)
-            for check in field.checks:
-                # HACK: standard checks implement nice error message
-                if check.error:
-                    line = f"      - **{check.error}**"
-                else:
-                    ref = f"{self.modname}.{check.name}"
-                    line = f"      - :py:obj:`{check.name} <{ref}>`"
-                self.add_line(line, source_name)
+        if not field.checks:
+            return
 
-            self.add_line("", source_name)
+        source_name = self.get_sourcename()
+        self.add_line("   :Validated by:", source_name)
+        for check in field.checks:
+            # HACK: standard checks implement nice error message
+            if check.error:
+                line = f"      - **{check.error}**"
+            else:
+                ref = f"{self.modname}.{check.name}"
+                line = f"      - :py:obj:`{check.name} <{ref}>`"
+            self.add_line(line, source_name)
+
+        self.add_line("", source_name)
 
     def add_field_validators(self):
         """
@@ -144,7 +171,7 @@ class PanderaSchemaDocumenter(DataDocumenter):
         """
         field_validators = {}
         source_name = self.get_sourcename()
-        for field in self.object.columns.values():
+        for field in list(self.object.columns.values()) + [self.object.index]:
             for check in field.checks:
                 # HACK: standard checks implement nice error message
                 if check.error:

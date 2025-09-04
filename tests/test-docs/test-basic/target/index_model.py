@@ -16,7 +16,7 @@ class TestSingleIndexModel(pa.DataFrameModel):
         unique=True,
         check_name=True,
         str_matches=r"^AIPE-[0-9]+$",
-        title="Firsti Index type field",
+        title="First Index type field",
         description="Field whose dtype is Index",
     )
 
