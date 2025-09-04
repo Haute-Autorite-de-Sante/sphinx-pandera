@@ -1,6 +1,6 @@
 import pandas as pd
-from pandera import Check, Column, DataFrameSchema, Index, dtypes
 from pandera.engines import pandas_engine
+from pandera.pandas import Check, Column, DataFrameSchema, Index, dtypes
 from pandera.typing import Series
 
 

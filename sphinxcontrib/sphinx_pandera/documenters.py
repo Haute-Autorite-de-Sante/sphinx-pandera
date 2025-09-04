@@ -376,7 +376,17 @@ class PanderaFieldDocumenter(AttributeDocumenter):
         """
         Get pandera field
         """
-        return self.pandera_schema.columns[self.object]
+        try:
+            return self.pandera_schema.columns[self.object]
+        except KeyError as exc:
+            idx = self.pandera_schema.index
+            if isinstance(idx, pa.Index) and (idx.name == self.object):
+                return idx
+            if isinstance(idx, pa.MultiIndex):
+                return self.pandera_schema.index.named_indexes[self.object]
+            raise NotImplementedError(
+                f"Unsupported field type for field {self.object}"
+            ) from exc
 
     def add_content(
         self,
@@ -422,8 +432,12 @@ class PanderaFieldDocumenter(AttributeDocumenter):
             "nullable": self.pandera_field.nullable,
             "unique": self.pandera_field.unique,
             "coerce": self.pandera_field.coerce,
-            "required": self.pandera_field.required,
         }
+
+        try:
+            constraints["required"] = self.pandera_field.required
+        except AttributeError:  # Field is an Index or MultiIndex
+            constraints["required"] = "True (Index)"
 
         source_name = self.get_sourcename()
         self.add_line(":Constraints:", source_name)
