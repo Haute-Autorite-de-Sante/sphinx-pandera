@@ -1,7 +1,7 @@
 import inspect
 from typing import Any, List, Optional
 
-import pandera as pa
+import pandera.pandas as pa
 from docutils.parsers.rst.directives import unchanged
 from docutils.statemachine import StringList
 from sphinx.ext.autodoc import (

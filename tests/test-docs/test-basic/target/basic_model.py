@@ -1,4 +1,4 @@
-import pandera as pa
+import pandera.pandas as pa
 
 
 class TestModel(pa.DataFrameModel):
