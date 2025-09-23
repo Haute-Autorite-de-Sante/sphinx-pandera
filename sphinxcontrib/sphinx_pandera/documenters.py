@@ -369,7 +369,9 @@ class PanderaFieldDocumenter(AttributeDocumenter):
             # GH#5 - TODO still needed ?
             # This might be the Index !
             idx = self.pandera_schema.index
-            if idx.name == self.object:
+            # TODO update when https://github.com/unionai-oss/pandera/issues/1474 is fixed in pandera
+            # pandera returns None name in the schema, when `check_name=False` so we have to assume that None is right
+            if idx.name == self.object or idx.name is None:
                 return idx
             raise e from e
 
