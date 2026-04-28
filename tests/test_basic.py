@@ -1,5 +1,13 @@
 import pytest
 
+from sphinx.ext.autodoc import ModuleDocumenter
+from sphinx.ext.autosummary import FakeDirective
+
+from sphinxcontrib.sphinx_pandera import PanderaModelDocumenter, PanderaSchemaDocumenter, PanderaModelConfigDocumenter, \
+    PanderaFieldDocumenter, PanderaCheckDocumenter
+from tests.symbols.basic_non_pandera import FooEnum, foo_func
+from tests.symbols import basic_model, basic_schema, check_model, check_schema, index_model, index_schema
+
 
 @pytest.mark.parametrize(
     "documenter,object_path,expected_rst",
@@ -563,3 +571,60 @@ def test_schema(documenter, object_path, expected_rst, autodocument):
         options_doc={"no-value": ""},  # Disable value doc
     )
     assert actual == expected_rst
+
+
+ALL_DOCUMENTER_CLASSES = [
+    PanderaSchemaDocumenter,
+    PanderaModelDocumenter,
+    PanderaModelConfigDocumenter,
+    PanderaFieldDocumenter,
+    PanderaCheckDocumenter
+]
+
+
+ALL_NON_PANDERA_SYMBOLS = [
+    FooEnum,
+    foo_func
+]
+
+ALL_PANDERA_SYMBOLS = (
+    (basic_model.TestModel, "pandera_model"),
+    (index_model.TestSingleIndexModel, "pandera_model"),
+    (index_model.TestMultiIndexModel, "pandera_model"),
+    (check_model.TestModel, "pandera_model"),
+    (check_model.TestModel.check_num_finess_format, "pandera_check"),
+    (check_model.TestModel.check_coords_non_null, "pandera_check"),
+    (basic_schema.basic_schema, "pandera_schema"),
+    (index_schema.single_index_schema, "pandera_schema"),
+    (index_schema.multi_index_schema, "pandera_schema"),
+    (check_schema.Evaluations, "pandera_schema"),
+    (check_schema.check_num_finess_format, "pandera_check"),
+    (check_schema.check_dataframe_coherence, "pandera_check"),
+)
+
+
+class TestCanDocumentMember:
+    @pytest.mark.parametrize("documenter_cls", ALL_DOCUMENTER_CLASSES)
+    @pytest.mark.parametrize("member,objtype", ALL_PANDERA_SYMBOLS)
+    def test_can_document_member_pandera_symbols(self, documenter_cls, member, objtype):
+        """Test that `can_document_member` does not crash."""
+
+        # Init parent (ModuleDocumenter)
+        parent = ModuleDocumenter(FakeDirective(), member.__module__)
+
+        if objtype == documenter_cls.objtype:
+            assert documenter_cls.can_document_member(member, '', False, parent)
+        else:
+            assert not documenter_cls.can_document_member(member, '', False, parent)
+
+
+    @pytest.mark.parametrize("documenter_cls", ALL_DOCUMENTER_CLASSES)
+    @pytest.mark.parametrize("member", ALL_NON_PANDERA_SYMBOLS)
+    def test_can_document_member_non_pandera_symbols(self, documenter_cls, member):
+        """Test that `can_document_member` does not crash when facing a non-pandera symbol."""
+
+        # Init parent (ModuleDocumenter)
+        parent = ModuleDocumenter(FakeDirective(), member.__module__)
+
+        # Make sure our documenter is robust to any kind of value
+        assert not documenter_cls.can_document_member(member, '', False, parent)

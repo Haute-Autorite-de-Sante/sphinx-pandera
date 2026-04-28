@@ -39,8 +39,8 @@ class PanderaSchemaDocumenter(DataDocumenter):
             )
             is_model = issubclass(member, pa.DataFrameSchema)
             return is_val and is_model
-
-        except TypeError:
+        except Exception:
+            # Be polite with the rest of sphinx-doc : do not crash
             return False
 
     def add_content(  # pylint: disable=unused-argument
@@ -247,8 +247,8 @@ class PanderaModelDocumenter(ClassDocumenter):
             )
             is_model = issubclass(member, pa.DataFrameModel)
             return is_val and is_model
-
-        except TypeError:
+        except Exception:
+            # Be polite with the rest of sphinx-doc : do not crash
             return False
 
     def document_members(self, *args, **kwargs) -> None:
@@ -287,13 +287,15 @@ class PanderaModelConfigDocumenter(ClassDocumenter):
             is_val = super().can_document_member(
                 member, membername, isattr, parent
             )
-            is_model_config = ("Config" in parent.object.__dict__) and (
-                getattr(member, "__name__", "") == "Config"
-            )
-
+            wrapper_object = parent.object
+            is_model_config = (
+                    (wrapper_object is not None)
+                    and ("Config" in getattr(wrapper_object, "__dict__", {}))
+                    and (getattr(member, "__name__", "") == "Config"
+            ))
             return is_val and is_model_config
-
-        except TypeError:
+        except Exception:
+            # Be polite with the rest of sphinx-doc : do not crash
             return False
 
     def get_object_members(
@@ -359,18 +361,19 @@ class PanderaFieldDocumenter(AttributeDocumenter):
     ) -> bool:
         """Filter only pandera fields."""
 
-        is_valid = super().can_document_member(
-            member, membername, isattr, parent
-        )
         try:
+            is_valid = super().can_document_member(
+                member, membername, isattr, parent
+            )
             if not issubclass(parent.object, pa.DataFrameModel):
                 return False
-        except TypeError:
-            return False
-        # pylint: disable-next=protected-access
-        is_field = membername in parent.object._get_model_attrs()
 
-        return is_valid and is_field
+            # pylint: disable-next=protected-access
+            is_field = membername in parent.object._get_model_attrs()
+            return is_valid and is_field
+        except Exception:
+            # Be polite with the rest of sphinx-doc : do not crash
+            return False
 
     @property
     def pandera_schema(self) -> pa.DataFrameSchema:
@@ -523,22 +526,22 @@ class PanderaCheckDocumenter(MethodDocumenter):
     ) -> bool:
         """Filter only pandera fields."""
 
-        is_valid = super().can_document_member(
-            member, membername, isattr, parent
-        )
         try:
+            is_valid = super().can_document_member(
+                member, membername, isattr, parent
+            )
             if not issubclass(parent.object, pa.DataFrameModel):
                 return False
-        except TypeError:
+
+            # pylint: disable-next=protected-access
+            model_attrs = parent.object._get_model_attrs()
+            is_check = membername in model_attrs and isinstance(
+                model_attrs[membername], classmethod
+            )
+            return is_valid and is_check
+        except Exception:
+            # Be polite with the rest of sphinx-doc : do not crash
             return False
-        # pylint: disable-next=protected-access
-        model_attrs = parent.object._get_model_attrs()
-
-        is_check = membername in model_attrs and isinstance(
-            model_attrs[membername], classmethod
-        )
-
-        return is_valid and is_check
 
     def get_checked_columns(self):
         schema: pa.DataFrameSchema = self.parent.to_schema()

@@ -68,7 +68,7 @@ def do_autodoc(
     state.document.settings.tab_width = 8
     bridge = DocumenterBridge(app.env, LoggingReporter(""), doc_opts, 1, state)
 
-    # instaniate documenter and run
+    # instantiate documenter and run
     documenter = doc_cls(bridge, object_path)  # type: ignore[assignment]
     documenter.generate()  # type: ignore[attr-defined]
 
