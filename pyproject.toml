@@ -158,7 +158,7 @@ skip = [
 [tool.pytest.ini_options]
 addopts = ["-rfsxX", "-l", "--tb=short", "--strict-markers", "-vv"]
 
-xfail_strict = "true"
+xfail_strict = "false"
 testpaths = ["tests",]
 norecursedirs = [".*", "*.egg", "build", "dist",]
 

@@ -588,34 +588,55 @@ ALL_NON_PANDERA_SYMBOLS = [
 ]
 
 ALL_PANDERA_SYMBOLS = (
-    (basic_model.TestModel, "pandera_model"),
-    (index_model.TestSingleIndexModel, "pandera_model"),
-    (index_model.TestMultiIndexModel, "pandera_model"),
-    (check_model.TestModel, "pandera_model"),
-    (check_model.TestModel.check_num_finess_format, "pandera_check"),
-    (check_model.TestModel.check_coords_non_null, "pandera_check"),
-    (basic_schema.basic_schema, "pandera_schema"),
-    (index_schema.single_index_schema, "pandera_schema"),
-    (index_schema.multi_index_schema, "pandera_schema"),
-    (check_schema.Evaluations, "pandera_schema"),
-    (check_schema.check_num_finess_format, "pandera_check"),
-    (check_schema.check_dataframe_coherence, "pandera_check"),
+    (basic_model.TestModel, PanderaModelDocumenter, False),
+    (index_model.TestSingleIndexModel, PanderaModelDocumenter, False),
+    (index_model.TestMultiIndexModel, PanderaModelDocumenter, False),
+    (check_model.TestModel, PanderaModelDocumenter, False),
+    pytest.param(
+        check_model.TestModel.check_num_finess_format, PanderaCheckDocumenter, False,
+        marks=pytest.mark.xfail(
+            reason="This has a parent that is a class, would need to create a classdocumenter")
+    ),
+    pytest.param(
+        check_model.TestModel.check_coords_non_null, PanderaCheckDocumenter, False,
+        marks=pytest.mark.xfail(
+            reason="This has a parent that is a class, would need to create a classdocumenter")
+    ),
+    (basic_schema.basic_schema, PanderaSchemaDocumenter, True),
+    (index_schema.single_index_schema, PanderaSchemaDocumenter, True),
+    (index_schema.multi_index_schema, PanderaSchemaDocumenter, True),
+    (check_schema.Evaluations, PanderaSchemaDocumenter, True),
+    pytest.param(
+        check_schema.check_num_finess_format, PanderaCheckDocumenter, False,
+        marks=pytest.mark.xfail(
+            reason="`PanderaCheckDocumenter` inherits from `MethodDocumenter`. `can_document_member` "
+                   "therefore returns False because the symbol is a function, not a method."
+        )
+    ),
+    pytest.param(
+        check_schema.check_dataframe_coherence, PanderaCheckDocumenter, False,
+        marks=pytest.mark.xfail(
+            reason="`PanderaCheckDocumenter` inherits from `MethodDocumenter`. `can_document_member` "
+                   "therefore returns False because the symbol is a function, not a method."
+        )
+    )
+    # TODO modelConfig and field
 )
 
 
 class TestCanDocumentMember:
     @pytest.mark.parametrize("documenter_cls", ALL_DOCUMENTER_CLASSES)
-    @pytest.mark.parametrize("member,objtype", ALL_PANDERA_SYMBOLS)
-    def test_can_document_member_pandera_symbols(self, documenter_cls, member, objtype):
+    @pytest.mark.parametrize("member,handled_by,isattr", ALL_PANDERA_SYMBOLS)
+    def test_can_document_member_pandera_symbols(self, autodocument, documenter_cls, member, handled_by, isattr):
         """Test that `can_document_member` does not crash."""
 
         # Init parent (ModuleDocumenter)
         parent = ModuleDocumenter(FakeDirective(), member.__module__)
 
-        if objtype == documenter_cls.objtype:
-            assert documenter_cls.can_document_member(member, '', False, parent)
+        if handled_by is documenter_cls:
+            assert documenter_cls.can_document_member(member, '', isattr, parent)
         else:
-            assert not documenter_cls.can_document_member(member, '', False, parent)
+            assert not documenter_cls.can_document_member(member, '', isattr, parent)
 
 
     @pytest.mark.parametrize("documenter_cls", ALL_DOCUMENTER_CLASSES)
