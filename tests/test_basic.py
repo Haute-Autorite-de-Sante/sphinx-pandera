@@ -619,6 +619,7 @@ def test_entire_modules(module_path, rootdir, expected_rst_file, autodocument):
         expected_rst_file.with_suffix(".rst_actual").write_text(actual_rst, encoding="utf-8")
         raise e from e
     else:
+        # Success - we can remove the local file if any
         actual_file = expected_rst_file.with_suffix(".rst_actual")
         if actual_file.exists():
             actual_file.unlink()
