@@ -1,0 +1,118 @@
+
+.. py:module:: target.check_model
+
+
+.. py:pandera_model:: TestModel
+   :module: target.check_model
+
+   Data model with checks
+
+
+   .. py:pandera_model_config:: TestModel.Config
+      :module: target.check_model
+
+
+      .. py:attribute:: TestModel.Config.strict
+         :module: target.check_model
+
+
+      .. py:attribute:: TestModel.Config.coerce
+         :module: target.check_model
+
+
+   .. py:pandera_field:: TestModel.date_export
+      :module: target.check_model
+      :type: ~pandera.typing.pandas.Series[DataType(datetime64[ns])]
+      :title: Export date
+
+      Date of the export, exports are made available on a yearly basis
+
+
+      :Constraints:
+         - **nullable** = False
+         - **unique** = False
+         - **coerce** = True
+         - **required** = True
+
+   .. py:pandera_field:: TestModel.num_finess_et
+      :module: target.check_model
+      :type: ~pandera.typing.pandas.Series[str]
+      :title: Geographic FINESS Identifier
+
+      Geographic FINESS Identifier (ex: 920000650)
+
+
+      :Constraints:
+         - **nullable** = False
+         - **unique** = False
+         - **coerce** = False
+         - **required** = True
+      :Validated by:
+         - :py:obj:`check_num_finess_format <target.check_model.TestModel.check_num_finess_format>`
+
+   .. py:pandera_field:: TestModel.num_finess_ej
+      :module: target.check_model
+      :type: ~pandera.typing.pandas.Series[str]
+      :title: Juridic FINESS Identifier
+
+      Identifider of the juridic entity (ex: 920150059)
+
+
+      :Constraints:
+         - **nullable** = False
+         - **unique** = False
+         - **coerce** = False
+         - **required** = True
+      :Validated by:
+         - :py:obj:`check_num_finess_format <target.check_model.TestModel.check_num_finess_format>`
+
+   .. py:pandera_field:: TestModel.latitude
+      :module: target.check_model
+      :type: ~pandera.typing.pandas.Series[float]
+      :title: Latitude
+
+      Latitude of the location of the care center(WGS 84) (ex: 48.84512493935407)
+
+
+      :Constraints:
+         - **nullable** = True
+         - **unique** = False
+         - **coerce** = False
+         - **required** = True
+      :Validated by:
+         - **greater_than_or_equal_to(-90)**
+         - **less_than_or_equal_to(90)**
+
+   .. py:pandera_field:: TestModel.longitude
+      :module: target.check_model
+      :type: ~pandera.typing.pandas.Series[float]
+      :title: Longitude
+
+      Longitude of the location of the care center(WGS 84) (ex: 48.84512493935407)
+
+
+      :Constraints:
+         - **nullable** = True
+         - **unique** = False
+         - **coerce** = False
+         - **required** = True
+      :Validated by:
+         - **greater_than_or_equal_to(-180)**
+         - **less_than_or_equal_to(180)**
+
+   .. py:pandera_check:: TestModel.check_num_finess_format(num_finess_et: ~pandera.typing.pandas.Series[str]) -> ~pandera.typing.pandas.Series[bool]
+      :module: target.check_model
+      :classmethod:
+
+      Finess identifiers are 9 characters wide (alphanumerical)
+
+      :Validates:
+         - :py:obj:`num_finess_et <target.check_model.TestModel.num_finess_et>`
+         - :py:obj:`num_finess_ej <target.check_model.TestModel.num_finess_ej>`
+
+
+   .. py:pandera_check:: TestModel.check_coords_non_null(data_df: ~pandas.core.frame.DataFrame) -> ~pandera.typing.pandas.Series[bool]
+      :module: target.check_model
+      :classmethod:
+
+      Longitude and latitude should not be null starting 2017
