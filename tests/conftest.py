@@ -32,6 +32,7 @@ def do_autodoc(
     documenter: str,
     object_path: str,
     options_doc: Optional[Dict] = None,
+    all_members: bool = False
 ) -> List[str]:
     """Run auto `documenter` for given object referenced by `object_path`
     within provided sphinx `app`. Optionally override app and documenter
@@ -68,9 +69,9 @@ def do_autodoc(
     state.document.settings.tab_width = 8
     bridge = DocumenterBridge(app.env, LoggingReporter(""), doc_opts, 1, state)
 
-    # instaniate documenter and run
+    # instantiate documenter and run
     documenter = doc_cls(bridge, object_path)  # type: ignore[assignment]
-    documenter.generate()  # type: ignore[attr-defined]
+    documenter.generate(all_members=all_members)  # type: ignore[attr-defined]
 
     return list(bridge.result)
 
@@ -137,6 +138,7 @@ def autodocument(test_app):
     def _auto(
         documenter: str,
         object_path: str,
+        all_members: bool = False,
         options_doc: Optional[Dict] = None,
         options_app: Optional[Dict] = None,
         testroot: str = "base",
@@ -148,6 +150,7 @@ def autodocument(test_app):
             documenter=documenter,
             object_path=object_path,
             options_doc=options_doc,
+            all_members=all_members
         )
 
     return _auto

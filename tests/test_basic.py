@@ -1,5 +1,13 @@
 import pytest
 
+from sphinx.ext.autodoc import ModuleDocumenter
+from sphinx.ext.autosummary import FakeDirective
+
+from sphinxcontrib.sphinx_pandera import PanderaModelDocumenter, PanderaSchemaDocumenter, PanderaModelConfigDocumenter, \
+    PanderaFieldDocumenter, PanderaCheckDocumenter
+from tests.symbols.basic_non_pandera import FooEnum, foo_func
+from tests.symbols import basic_model, basic_schema, check_model, check_schema, index_model, index_schema
+
 
 @pytest.mark.parametrize(
     "documenter,object_path,expected_rst",
@@ -563,3 +571,133 @@ def test_schema(documenter, object_path, expected_rst, autodocument):
         options_doc={"no-value": ""},  # Disable value doc
     )
     assert actual == expected_rst
+
+
+@pytest.mark.parametrize(
+    "module_path,expected_rst_file",
+    [
+        ("target.basic_model", "target/basic_model_ref.rst"),
+        pytest.param(
+            "target.basic_schema", "target/basic_schema_ref.rst",
+            marks=pytest.mark.xfail(
+                strict=False,
+                reason="With this Sphinx version the schema instance does not have `isattr=True` so it is rejected by "
+                       "`DataDocumenter.can_document_member`. Besides it does not have the proper `__module__` "
+                       "attribute so it is rejected because of `check_module=True` in `documenter.generate`."
+            )
+        ),
+        ("target.check_model", "target/check_model_ref.rst"),
+        ("target.check_schema", "target/check_schema_ref.rst"),
+        ("target.index_model", "target/index_model_ref.rst"),
+        pytest.param(
+            "target.index_schema", "target/index_schema_ref.rst",
+            marks=pytest.mark.xfail(
+                reason="With this Sphinx version the schema instance does not have `isattr=True` so it is rejected by "
+                       "`DataDocumenter.can_document_member`. Besides it does not have the proper `__module__` "
+                       "attribute so it is rejected because of `check_module=True` in `documenter.generate`."
+            )
+        ),
+    ]
+)
+def test_entire_modules(module_path, rootdir, expected_rst_file, autodocument):
+    """Same as the two above, but this will go through the 'can_document_member' calls"""
+
+    expected_rst_file = rootdir / "test-basic" / expected_rst_file
+    expected_rst = expected_rst_file.read_text(encoding="utf-8")
+    actual_lines = autodocument(
+        documenter="module",
+        object_path=module_path,
+        all_members=True,
+        testroot="basic",
+        options_doc={"no-value": "", "undoc-members": ""},  # Disable value doc
+    )
+    actual_rst = "\n".join(actual_lines)
+    try:
+        assert actual_rst == expected_rst
+    except AssertionError as e:
+        # Write the file locally to easily modify the test ref file if needed.
+        expected_rst_file.with_suffix(".rst_actual").write_text(actual_rst, encoding="utf-8")
+        raise e from e
+    else:
+        # Success - we can remove the local file if any
+        actual_file = expected_rst_file.with_suffix(".rst_actual")
+        if actual_file.exists():
+            actual_file.unlink()
+
+
+ALL_DOCUMENTER_CLASSES = [
+    PanderaSchemaDocumenter,
+    PanderaModelDocumenter,
+    PanderaModelConfigDocumenter,
+    PanderaFieldDocumenter,
+    PanderaCheckDocumenter
+]
+
+
+ALL_NON_PANDERA_SYMBOLS = [
+    FooEnum,
+    foo_func
+]
+
+ALL_PANDERA_SYMBOLS = (
+    (basic_model.TestModel, PanderaModelDocumenter, False),
+    (index_model.TestSingleIndexModel, PanderaModelDocumenter, False),
+    (index_model.TestMultiIndexModel, PanderaModelDocumenter, False),
+    (check_model.TestModel, PanderaModelDocumenter, False),
+    pytest.param(
+        check_model.TestModel.check_num_finess_format, PanderaCheckDocumenter, False,
+        marks=pytest.mark.xfail(
+            reason="This has a parent that is a class, would need to create a classdocumenter")
+    ),
+    pytest.param(
+        check_model.TestModel.check_coords_non_null, PanderaCheckDocumenter, False,
+        marks=pytest.mark.xfail(
+            reason="This has a parent that is a class, would need to create a classdocumenter")
+    ),
+    (basic_schema.basic_schema, PanderaSchemaDocumenter, True),
+    (index_schema.single_index_schema, PanderaSchemaDocumenter, True),
+    (index_schema.multi_index_schema, PanderaSchemaDocumenter, True),
+    (check_schema.Evaluations, PanderaSchemaDocumenter, True),
+    pytest.param(
+        check_schema.check_num_finess_format, PanderaCheckDocumenter, False,
+        marks=pytest.mark.xfail(
+            reason="`PanderaCheckDocumenter` inherits from `MethodDocumenter`. `can_document_member` "
+                   "therefore returns False because the symbol is a function, not a method."
+        )
+    ),
+    pytest.param(
+        check_schema.check_dataframe_coherence, PanderaCheckDocumenter, False,
+        marks=pytest.mark.xfail(
+            reason="`PanderaCheckDocumenter` inherits from `MethodDocumenter`. `can_document_member` "
+                   "therefore returns False because the symbol is a function, not a method."
+        )
+    )
+    # TODO modelConfig and field
+)
+
+
+class TestCanDocumentMember:
+    @pytest.mark.parametrize("documenter_cls", ALL_DOCUMENTER_CLASSES)
+    @pytest.mark.parametrize("member,handled_by,isattr", ALL_PANDERA_SYMBOLS)
+    def test_can_document_member_pandera_symbols(self, autodocument, documenter_cls, member, handled_by, isattr):
+        """Test that `can_document_member` does not crash."""
+
+        # Init parent (ModuleDocumenter)
+        parent = ModuleDocumenter(FakeDirective(), member.__module__)
+
+        if handled_by is documenter_cls:
+            assert documenter_cls.can_document_member(member, '', isattr, parent)
+        else:
+            assert not documenter_cls.can_document_member(member, '', isattr, parent)
+
+
+    @pytest.mark.parametrize("documenter_cls", ALL_DOCUMENTER_CLASSES)
+    @pytest.mark.parametrize("member", ALL_NON_PANDERA_SYMBOLS)
+    def test_can_document_member_non_pandera_symbols(self, documenter_cls, member):
+        """Test that `can_document_member` does not crash when facing a non-pandera symbol."""
+
+        # Init parent (ModuleDocumenter)
+        parent = ModuleDocumenter(FakeDirective(), member.__module__)
+
+        # Make sure our documenter is robust to any kind of value
+        assert not documenter_cls.can_document_member(member, '', False, parent)
