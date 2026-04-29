@@ -37,7 +37,7 @@ class PanderaSchemaDocumenter(DataDocumenter):
             is_val = super().can_document_member(
                 member, membername, isattr, parent
             )
-            is_model = issubclass(member, pa.DataFrameSchema)
+            is_model = isinstance(member, pa.DataFrameSchema)
             return is_val and is_model
         except Exception:
             # Be polite with the rest of sphinx-doc : do not crash
