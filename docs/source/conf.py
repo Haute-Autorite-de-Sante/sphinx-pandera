@@ -69,7 +69,6 @@ html_theme = "pydata_sphinx_theme"
 html_static_path = ["_static"]
 html_favicon = "_static/favicon.ico"
 html_theme_options = {
-    "footer_items": ["sphinx-version"],
     "logo": {
         "image_light": "logo-light.svg",
         "image_dark": "logo-dark.svg",
