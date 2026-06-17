@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "sphinx-pandera"
-version = "0.0.5"
+version = "0.0.6"
 description = "Sphinx Pandera"
 authors = ["Timothée Chehab <t.chehab@has-sante.fr>", "Matthieu Doutreligne <m.doutreligne@has-sante.fr>"]
 license = "EUPL-v1.2"
@@ -24,7 +24,7 @@ packages = [ {include = "sphinxcontrib"}]
 # Changelog = "https://gitlab.has-sante.fr/has-sante/public/alpha/sphinx-pandera/releases"
 
 [tool.poetry.dependencies]
-python = ">=3.9,<3.12"
+python = ">=3.10,<3.13"
 
 # Project-Specific
 pandera = {extras = ["pandas"], version = "^0"}

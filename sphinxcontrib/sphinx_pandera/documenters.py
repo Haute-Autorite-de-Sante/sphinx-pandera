@@ -363,9 +363,10 @@ class PanderaFieldDocumenter(AttributeDocumenter):
             member, membername, isattr, parent
         )
         try:
-            if not issubclass(parent.object, pa.DataFrameModel):
+            # pandera messes up the class hierarchy so we can't use issubclass
+            if "DataFrameModel" not in str(inspect.getmro(parent.object)[1]):
                 return False
-        except TypeError:
+        except AttributeError:
             return False
         # pylint: disable-next=protected-access
         is_field = membername in parent.object._get_model_attrs()
