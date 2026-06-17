@@ -1248,13 +1248,13 @@ xml = ["lxml (>=4.9.2)"]
 
 [[package]]
 name = "pandera"
-version = "0.27.0"
+version = "0.31.1"
 description = "A light-weight and flexible data validation and testing tool for statistical data objects."
 optional = false
 python-versions = ">=3.10"
 files = [
-    {file = "pandera-0.27.0-py3-none-any.whl", hash = "sha256:e43b8062dfcde984300d798686815cc93feaae09645d3cddee3ab437f2d11ed5"},
-    {file = "pandera-0.27.0.tar.gz", hash = "sha256:83c66d5896b97b3a91c810621038d2495f56c83864493819e7587d2059e641ad"},
+    {file = "pandera-0.31.1-py3-none-any.whl", hash = "sha256:f9f1ff4852804e1a181a4cb968e732a492f4b6dbefe051a8c5500da43d5c326d"},
+    {file = "pandera-0.31.1.tar.gz", hash = "sha256:c75aa3868af15d4f9aa613acf1a7f436a518f81f1eb658ad630c1dbe1dab0f13"},
 ]
 
 [package.dependencies]
@@ -1267,21 +1267,23 @@ typing_extensions = "*"
 typing_inspect = ">=0.6.0"
 
 [package.extras]
-all = ["black", "dask[dataframe]", "distributed", "fastapi", "frictionless (<=4.40.8)", "geopandas (<1.1.0)", "hypothesis (>=6.92.7)", "ibis-framework (>=9.0.0)", "modin", "pandas-stubs", "polars (>=0.20.0)", "pyspark[connect] (>=3.2.0,<4.0.0)", "pyyaml (>=5.1)", "ray", "scipy", "scipy-stubs", "shapely"]
+all = ["black", "dask[dataframe]", "distributed", "fastapi", "frictionless (<=4.40.8)", "geopandas", "hypothesis (>=6.92.7)", "ibis-framework (>=9.0.0)", "modin", "numpy (>=1.24.4)", "pandas-stubs", "polars (>=0.20.0)", "pyarrow-hotfix", "pyspark[connect] (>=3.2.0)", "pyyaml (>=5.1)", "ray", "scipy", "scipy-stubs", "shapely", "xarray (>=2024.10.0)"]
 dask = ["dask[dataframe]", "distributed"]
 fastapi = ["fastapi"]
-geopandas = ["geopandas (<1.1.0)", "shapely"]
+frictionless = ["frictionless (<=4.40.8)"]
+geopandas = ["geopandas", "shapely"]
 hypotheses = ["scipy"]
-ibis = ["ibis-framework (>=9.0.0)"]
-io = ["black", "frictionless (<=4.40.8)", "pyyaml (>=5.1)"]
+ibis = ["ibis-framework (>=9.0.0)", "pyarrow-hotfix"]
+io = ["pyyaml (>=5.1)"]
 modin = ["dask[dataframe]", "distributed", "modin", "ray"]
 modin-dask = ["dask[dataframe]", "distributed", "modin"]
 modin-ray = ["modin", "ray"]
 mypy = ["pandas-stubs", "scipy-stubs"]
 pandas = ["numpy (>=1.24.4)", "pandas (>=2.1.1)"]
 polars = ["polars (>=0.20.0)"]
-pyspark = ["pyspark[connect] (>=3.2.0,<4.0.0)"]
+pyspark = ["pyspark[connect] (>=3.2.0)"]
 strategies = ["hypothesis (>=6.92.7)"]
+xarray = ["numpy (>=1.24.4)", "xarray (>=2024.10.0)"]
 
 [[package]]
 name = "parso"

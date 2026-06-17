@@ -174,7 +174,14 @@ Evaluations = DataFrameSchema(
             title=None,
         ),
     },
-    checks=[check_dataframe_coherence],
+    checks=[
+        check_dataframe_coherence,
+        Check(
+            lambda df: df.notna(axis=1).any(),
+            name="dummy_native_pa_check",
+            description="Check using pandera Check class",
+        ),
+    ],
     drop_invalid_rows=True,
     index=Index(
         dtype="int64",

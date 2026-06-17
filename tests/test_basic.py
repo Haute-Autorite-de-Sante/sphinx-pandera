@@ -468,6 +468,9 @@ def test_model(documenter, object_path, expected_rst, autodocument):
                 "   .. py:pandera_check:: check_dataframe_coherence",
                 "",
                 "      Dummy check to test dataframe wide checks, defined at the Schema level",
+                "   .. py:pandera_check:: dummy_native_pa_check",
+                "",
+                "      Check using pandera Check class",
             ],
         ),
         (
