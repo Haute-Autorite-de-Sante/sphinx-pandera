@@ -206,11 +206,15 @@ class PanderaSchemaDocumenter(DataDocumenter):
             return
 
         for check in self.object.checks:
-            self.add_line(
-                f".. py:pandera_check:: {check.__name__}", source_name
-            )
+            if isinstance(check, pa.Check):
+                name = check.name
+                doc = check.description
+            else:
+                name = check.__name__
+                doc = check.__doc__.strip()
+            self.add_line(f".. py:pandera_check:: {name}", source_name)
             self.add_line("", source_name)
-            self.add_line(f"   {check.__doc__.strip()}", source_name)
+            self.add_line(f"   {doc}", source_name)
 
 
 #########
